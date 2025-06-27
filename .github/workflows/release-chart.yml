@@ -32,6 +32,9 @@ jobs:
       - name: Extract tag name
         run: echo "RELEASE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
+      - name: Clean old chart packages
+        run: rm -f ./*.tgz
+
       - name: Package Helm Chart
         run: |
           helm package chart \
@@ -40,11 +43,12 @@ jobs:
 
       - name: Push Helm Chart to GitHub Container Registry (User Namespace)
         run: |
-          CHART_TGZ=$(ls *.tgz)
-          helm push "$CHART_NAME" oci://ghcr.io/Pardhasardhirao29/charts
+          CHART_TGZ=$(find . -maxdepth 1 -name "*.tgz" | head -n 1)
+          echo "Found packaged chart: $CHART_TGZ"
+          helm push "$CHART_TGZ" oci://ghcr.io/Pardhasardhirao29/ui
 
       - name: Verify pushed chart
         run: |
-          helm repo add ghcr-charts oci://ghcr.io/Pardhasardhirao29/charts
+          helm repo add ghcr-charts oci://ghcr.io/Pardhasardhirao29/ui
           helm search repo ghcr-charts
 
