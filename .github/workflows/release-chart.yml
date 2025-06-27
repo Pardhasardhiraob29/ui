@@ -40,11 +40,11 @@ jobs:
 
       - name: Push Helm Chart to GitHub Container Registry (User Namespace)
         run: |
-          CHART_NAME="kubestellar-ui-${{ env.RELEASE_TAG }}.tgz"
+          CHART_TGZ=$(ls *.tgz)
           helm push "$CHART_NAME" oci://ghcr.io/Pardhasardhirao29/charts
 
       - name: Verify pushed chart
         run: |
           helm repo add ghcr-charts oci://ghcr.io/Pardhasardhirao29/charts
-          helm search repo ghcr-charts/kubestellar-ui
+          helm search repo ghcr-charts
 
