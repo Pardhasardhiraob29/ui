@@ -10,7 +10,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAMESPACE: kubestellar/ui
+  IMAGE_NAMESPACE: pardhasardhiraob29/ui
 
 jobs:
   build-and-push-frontend:
