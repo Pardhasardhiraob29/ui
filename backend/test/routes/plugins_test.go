@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -33,7 +32,7 @@ func TestSetupPluginRoutes(t *testing.T) {
 		},
 		{
 			name:           "Get specific plugin details",
-			path:           "/api/plugins/2",
+			path:           "/api/plugins/monitoring-plugin",
 			method:         "GET",
 			expectedStatus: http.StatusOK,
 		},
@@ -42,7 +41,6 @@ func TestSetupPluginRoutes(t *testing.T) {
 			path:   "/api/plugins/install",
 			method: "POST",
 			body: map[string]interface{}{
-				"id":      1,
 				"name":    "backup-plugin",
 				"version": "v1.0.0",
 				"source":  "github.com/example/backup-plugin",
@@ -51,27 +49,27 @@ func TestSetupPluginRoutes(t *testing.T) {
 		},
 		{
 			name:           "Uninstall plugin",
-			path:           "/api/plugins/1",
+			path:           "/api/plugins/backup-plugin",
 			method:         "DELETE",
 			expectedStatus: http.StatusOK,
 		},
 		{
 			name:           "Enable plugin",
-			path:           "/api/plugins/1/enable",
+			path:           "/api/plugins/backup-plugin/enable",
 			method:         "POST",
 			body:           map[string]interface{}{},
 			expectedStatus: http.StatusOK,
 		},
 		{
 			name:           "Disable plugin",
-			path:           "/api/plugins/1/disable",
+			path:           "/api/plugins/backup-plugin/disable",
 			method:         "POST",
 			body:           map[string]interface{}{},
 			expectedStatus: http.StatusOK,
 		},
 		{
 			name:           "Get plugin status",
-			path:           "/api/plugins/2/status",
+			path:           "/api/plugins/monitoring-plugin/status",
 			method:         "GET",
 			expectedStatus: http.StatusOK,
 		},
@@ -102,12 +100,11 @@ func TestSetupPluginRoutes(t *testing.T) {
 			path:   "/api/plugins/feedback",
 			method: "POST",
 			body: map[string]interface{}{
-				"pluginId":   1,
-				"rating":     5,
-				"comment":    "Great plugin!",
-				"suggestion": "Please make it more stable!",
+				"pluginId": "backup-plugin",
+				"rating":   5,
+				"comment":  "Great plugin!",
 			},
-			expectedStatus: http.StatusCreated,
+			expectedStatus: http.StatusOK,
 		},
 	}
 
@@ -142,7 +139,7 @@ func TestPluginParameterizedRoutes(t *testing.T) {
 	router := gin.New()
 	routes.SetupRoutes(router)
 
-	plugins := []int{1, 2, 3} // 1 is the backup plugin
+	plugins := []string{"monitoring-plugin", "backup-plugin", "logging-plugin"}
 	operations := []struct {
 		operation string
 		method    string
@@ -156,8 +153,8 @@ func TestPluginParameterizedRoutes(t *testing.T) {
 
 	for _, plugin := range plugins {
 		for _, op := range operations {
-			t.Run(op.operation+" "+strconv.Itoa(plugin), func(t *testing.T) {
-				path := "/api/plugins/" + strconv.Itoa(plugin) + "/" + op.operation
+			t.Run(op.operation+" "+plugin, func(t *testing.T) {
+				path := "/api/plugins/" + plugin + "/" + op.operation
 				var req *http.Request
 				if op.needsBody {
 					body := map[string]interface{}{}
@@ -193,9 +190,9 @@ func TestPluginInvalidMethods(t *testing.T) {
 		url    string
 	}{
 		{"Invalid POST on GET plugins list", "POST", "/api/plugins"},
-		{"Invalid PUT on GET plugin details", "PUT", "/api/plugins/123456789"},
+		{"Invalid PUT on GET plugin details", "PUT", "/api/plugins/test-plugin"},
 		{"Invalid GET on POST install", "GET", "/api/plugins/install"},
-		{"Invalid DELETE on POST enable", "DELETE", "/api/plugins/123456789/enable"},
+		{"Invalid DELETE on POST enable", "DELETE", "/api/plugins/test-plugin/enable"},
 		{"Invalid GET on POST feedback", "GET", "/api/plugins/feedback"},
 	}
 
@@ -207,7 +204,7 @@ func TestPluginInvalidMethods(t *testing.T) {
 
 			// Since the routes are registered with specific methods, using wrong method should return 404 or 405
 			// Accept both 404 and 405 as valid responses for invalid methods
-			assert.True(t, w.Code == http.StatusNotFound || w.Code == http.StatusMethodNotAllowed || w.Code == http.StatusBadRequest,
+			assert.True(t, w.Code == http.StatusNotFound || w.Code == http.StatusMethodNotAllowed,
 				"Invalid method should return 404 or 405, got %d", w.Code)
 		})
 	}

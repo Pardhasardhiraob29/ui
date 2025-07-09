@@ -170,43 +170,16 @@ export const NodeLabel = memo<NodeLabelProps>(
             }}
             onClick={onClick}
           >
-            <div style={{ display: 'flex', alignItems: 'center', marginLeft: '-5px' }}>
-              {/* Left: Fixed width icon + dynamicText */}
-              <div
-                style={{
-                  width: '80px', // enough space for longest icon + label
-                  minWidth: '80px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                }}
-              >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: '-5px' }}>
+              <div>
                 <img src={icon} alt={label} width="18" height="18" />
-                <span
-                  style={{
-                    color: 'gray',
-                    fontWeight: 500,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {dynamicText}
-                </span>
+                <span style={{ color: 'gray', fontWeight: 500 }}>{dynamicText}</span>
               </div>
-
-              {/* Right: Object name - always vertically centered */}
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                }}
-              >
+              <div style={{ textAlign: 'left' }}>
                 <div>{label}</div>
-                {/* Extra row for optional icons or actions */}
                 <div style={{ display: 'flex', gap: '1px' }}>
-                  {/* (Optional) check/heart icons etc. */}
+                  {/* Removed heart and check/cross icons */}
+                  {/* Removed heart and check/cross icons */}
                 </div>
               </div>
             </div>
